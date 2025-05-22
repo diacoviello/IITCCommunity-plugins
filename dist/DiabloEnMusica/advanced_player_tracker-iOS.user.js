@@ -193,7 +193,7 @@ function wrapper( plugin_info ) {
 		setTimeout( function() {
 			if ( $( '#toolbox' ).length ) {
 				$( '#toolbox' ).append(
-					' <a onclick="window.plugin.advancedPlayerTracker.showDialog()">Advanced Player Tracker + /a>'
+					' <a onclick="window.plugin.advancedPlayerTracker.showDialog()">Advanced Player Tracker+ /a>'
 				);
 			} else {
 				console.warn( "Toolbox not found — plugin UI may not appear." );
