@@ -198,7 +198,7 @@ function wrapper( plugin_info ) {
         }
 
         waitForToolbox( function() {
-            $( '#toolbox' ).append( ' <a onclick="window.plugin.advancedPlayerTracker.showDialog()">Advanced Player Tracker</a>' );
+            $( '#toolbox' ).append( ' <a onclick="window.plugin.advancedPlayerTracker.showDialog()">Advanced Player Tracker+</a>' );
             console.log( "Advanced Player Tracker link added to sidebar." );
         } );
 
