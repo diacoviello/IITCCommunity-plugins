@@ -1,7 +1,7 @@
 // ==UserScript==
 // @author         BlancLapin & DiabloEnMusica
 // @id             advanced_player_tracker@BlancLapin
-// @name           Advanced Tracker Player - tweaked
+// @name           Advanced Tracker Player +
 // @category       Misc
 // @version        0.0.4
 // @namespace      https://raw.githack.com/diacoviello/IITCCommunity-plugins

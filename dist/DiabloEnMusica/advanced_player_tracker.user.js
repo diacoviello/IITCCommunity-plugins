@@ -12,8 +12,7 @@
 // @include        http://www.ingress.com/intel*
 // @include        https://www.ingress.com/intel*
 // @include        http://intel.ingress.com/*
-// @include        https:/intel.ingress.com/*
-// @match          http://intel.ingress.com/*
+// @include        https://intel.ingress.com/*
 // @match          https://intel.ingress.com/*
 // @match          http://www.ingress.com/intel*
 // @match          https://www.ingress.com/intel*
@@ -24,7 +23,7 @@ function wrapper( plugin_info ) {
     if ( typeof window.plugin!=='function' ) window.plugin=function() { };
     window.plugin.advancedPlayerTracker=function() { };
 
-    window.plugin.advancedPlayerTracker.refreshInterval=600000; // 10 minutes
+    window.plugin.advancedPlayerTracker.refreshInterval=600000;
     window.plugin.advancedPlayerTracker.LSPlayerListKey='IITCWatchPlayerList';
     window.plugin.advancedPlayerTracker.LSPlayerDataKey='IITCWatchPlayerData';
 
@@ -33,7 +32,7 @@ function wrapper( plugin_info ) {
     window.plugin.advancedPlayerTracker.playerData=[];
 
     plugin_info.buildName='AdvancedPlayerTracker';
-    plugin_info.dateTimeVersion='20250521152000';
+    plugin_info.dateTimeVersion='20250521160000';
     plugin_info.pluginId='AdvancedPlayerTracker';
 
     window.plugin.advancedPlayerTracker.setupHook=function() {
@@ -49,23 +48,22 @@ function wrapper( plugin_info ) {
 
         window.setInterval( window.plugin.advancedPlayerTracker.refreshMap, window.plugin.advancedPlayerTracker.refreshInterval );
         window.plugin.advancedPlayerTracker.refreshMap();
-    }
+    };
 
     window.plugin.advancedPlayerTracker.refreshMap=function() {
         console.log( "Triggering map refresh" );
         window.mapDataRequest.start();
-    }
+    };
 
     window.plugin.advancedPlayerTracker.updatePlayerList=function( updatedPlayerList ) {
         window.plugin.advancedPlayerTracker.playerList=updatedPlayerList.split( '\n' );
         localStorage.setItem( window.plugin.advancedPlayerTracker.LSPlayerListKey, JSON.stringify( {
             WatchedPlayers: window.plugin.advancedPlayerTracker.playerList
         } ) );
-    }
+    };
 
     window.plugin.advancedPlayerTracker.mapRefreshEnded=function() {
         console.log( "Map refresh ended, checking for watched players..." );
-
         window.plugin.advancedPlayerTracker.visiblePlayers=[];
 
         $.each( window.plugin.playerTracker.stored, function( agentName, playerData ) {
@@ -85,12 +83,11 @@ function wrapper( plugin_info ) {
                 );
 
                 if ( !alreadyLogged ) {
-                    console.log( "Logging:", agentName, event );
-
                     const lat=event.latlngs[ 0 ][ 0 ];
                     const lng=event.latlngs[ 0 ][ 1 ];
                     const portalLink=`https://intel.ingress.com/intel?ll=${lat},${lng}&z=17&pll=${lat},${lng}`;
 
+                    console.log( "Logging:", agentName, event );
                     window.plugin.advancedPlayerTracker.playerData.push( {
                         Player: agentName,
                         Team: playerData.team,
@@ -110,7 +107,7 @@ function wrapper( plugin_info ) {
             window.plugin.advancedPlayerTracker.LSPlayerDataKey,
             JSON.stringify( window.plugin.advancedPlayerTracker.playerData )
         );
-    }
+    };
 
     window.plugin.advancedPlayerTracker.exportData=function() {
         const data=window.plugin.advancedPlayerTracker.playerData;
@@ -181,6 +178,17 @@ function wrapper( plugin_info ) {
             title: "Tracked Player List",
             html: data
         } ).parent();
+    };
+
+    function waitForToolbox( callback, tries=10 ) {
+        const toolbox=document.getElementById( 'toolbox' );
+        if ( toolbox ) {
+            callback( toolbox );
+        } else if ( tries>0 ) {
+            setTimeout( () => waitForToolbox( callback, tries-1 ), 300 );
+        } else {
+            console.warn( "Advanced Player Tracker: toolbox not found after waiting." );
+        }
     }
 
     window.plugin.advancedPlayerTracker.setup=function() {
@@ -189,7 +197,11 @@ function wrapper( plugin_info ) {
             return;
         }
 
-        $( '#toolbox' ).append( ' <a onclick="window.plugin.advancedPlayerTracker.showDialog()">Advanced Player Tracker</a>' );
+        waitForToolbox( function() {
+            $( '#toolbox' ).append( ' <a onclick="window.plugin.advancedPlayerTracker.showDialog()">Advanced Player Tracker</a>' );
+            console.log( "Advanced Player Tracker link added to sidebar." );
+        } );
+
         window.plugin.advancedPlayerTracker.setupHook();
         addHook( 'mapDataRefreshEnd', window.plugin.advancedPlayerTracker.mapRefreshEnded );
     };
@@ -199,7 +211,12 @@ function wrapper( plugin_info ) {
 
     if ( !window.bootPlugins ) window.bootPlugins=[];
     window.bootPlugins.push( setup );
-    if ( window.iitcLoaded&&typeof setup==='function' ) setup();
+    if ( window.iitcLoaded&&typeof setup==='function' ) {
+        setup();
+    } else {
+        if ( !window.runOnStartup ) window.runOnStartup=[];
+        window.runOnStartup.push( setup );
+    }
 }
 
 const script=document.createElement( 'script' );
